@@ -3,6 +3,8 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.ext.declarative import DeclarativeMeta
 
+from sqlalchemy import func
+
 import json
 from marshmallow import Schema, fields, post_load
 
@@ -10,6 +12,7 @@ from marshmallow import Schema, fields, post_load
 db = SQLAlchemy()
 
 FIELDS = ['date', 'channel', 'country', 'os', 'impressions', 'clicks', 'installs', 'spend', 'revenue']
+INTEGER_FIELDS = ['impressions', 'clicks', 'installs', 'spend', 'revenue']
 
 class Metrics(db.Model):
 
@@ -67,6 +70,11 @@ class Metrics(db.Model):
     @classmethod
     def fetch_columns(cls, attr):
         search_columns = [getattr(cls, i) for i in attr]
+        return search_columns
+
+    @classmethod
+    def aggregate_columns(cls, attr):
+        search_columns = [func.sum(getattr(cls, i)) for i in attr]
         return search_columns
 
 
